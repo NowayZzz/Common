@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<project name="ERPAPI" default="manager_deploy">
+	<property name="encoding" value="UTF-8" description="文件编码"/>
+	<property name="jdk.version" value="1.7"/>
+	<property name="source.version" value="1.7"/>
+
+	<property name="war.output.file"		value="./war/ROOT.war" description="WAR输出目录"/>
+	
+	<property name="tomcat7.dir"			value="D:/apache-tomcat-7.0.30" description="tomcat的依赖包"/>
+	<property name="tomcat7.lib.dir"		value="${tomcat7.dir}/lib" description="tomcat的依赖包"/>
+	<property name="tomcat7.bin.dir"		value="${tomcat7.dir}/bin" description=""/>
+	<property name="tomcat7.webapps.dir"	value="${tomcat7.dir}/webapps" description=""/>
+	
+	
+	<property name="tomcat7.manager1.url"	value="http://10.1.1.52:8100/manager/text" description="tomcat后台地址"/>
+	<property name="tomcat7.manager2.url" value="http://10.1.1.52:8200/manager/text" description="tomcat后台地址"/>
+	<property name="tomcat7.manager3.url" value="http://10.1.1.52:8300/manager/text" description="tomcat后台地址"/>
+	
+	<property name="tomcat7.manager.username"	value="admin" />
+	<property name="tomcat7.manager.password"	value="admin" />
+	
+	
+	<property name="web_context" value="${ant.project.name}"/>
+	
+	<fileset id="tomcat.libs" dir="${tomcat7.lib.dir}">
+	</fileset>
+	
+	<!-- tomcat 远程部署 -->
+	
+	<path id="tomcat.lib.path">
+	      <fileset dir="${tomcat7.lib.dir}" includes="/catalina-ant.jar"/>
+	      <fileset dir="${tomcat7.lib.dir}" includes="/*.jar"/>
+	</path>
+	
+	<!-- Ant Tomcat Task Definition -->
+	<typedef name="deploy" classname="org.apache.catalina.ant.DeployTask" classpathref="tomcat.lib.path"/>
+	<!--
+	<typedef name="undeploy" classname="org.apache.catalina.ant.UndeployTask" classpathref="tomcat.lib.path" />
+	-->
+	<typedef name="list" classname="org.apache.catalina.ant.ListTask" classpathref="tomcat.lib.path" />
+	<typedef name="start" classname="org.apache.catalina.ant.StartTask" classpathref="tomcat.lib.path" />
+	<typedef name="stop" classname="org.apache.catalina.ant.StopTask" classpathref="tomcat.lib.path" />
+
+	
+	<target name="deploy_upload1" description="Install application in Tomcat1">
+	    <echo message="manager1 deploying: /" />
+	      <deploy url="${tomcat7.manager1.url}" 
+	          path="/" 
+	          username="${tomcat7.manager.username}" 
+	          password="${tomcat7.manager.password}" 
+	          war="file:${war.output.file}" update="true"/>
+	  </target>
+	
+	<target name="deploy_upload2" description="Install application in Tomcat2">
+	    <echo message="manager2 deploying: /" />
+	      <deploy url="${tomcat7.manager2.url}" 
+	          path="/" 
+	          username="${tomcat7.manager.username}" 
+	          password="${tomcat7.manager.password}" 
+	          war="file:${war.output.file}" update="true"/>
+	  </target>
+		
+		<target name="deploy_upload3" description="Install application in Tomcat3">
+		    <echo message="manager3 deploying: /" />
+		      <deploy url="${tomcat7.manager3.url}" 
+		          path="/" 
+		          username="${tomcat7.manager.username}" 
+		          password="${tomcat7.manager.password}" 
+		          war="file:${war.output.file}" update="true"/>
+		  </target>
+
+	<!--
+    <target name="undeploy" description="Remove application in Tomcat" >
+        <undeploy url="${tomcat7.manager.url}" 
+        		username="${tomcat7.manager.username}" 
+        		password="${tomcat7.manager.password}" 
+        		path="/${web_context}" />
+    </target>
+	
+	
+    <target name="start" description="Start Tomcat application">
+        <start url="${tomcat7.manager.url}" 
+        		username="${tomcat7.manager.username}" 
+        		password="${tomcat7.manager.password}" 
+        		path="/${web_context}" />
+    </target>
+
+    <target name="stop" description="Stop Tomcat application">
+        <stop url="${tomcat7.manager.url}" 
+        	username="${tomcat7.manager.username}" 
+        	password="${tomcat7.manager.password}" 
+        	path="/${web_context}" />
+    </target>
+
+    <target name="list" description="List Tomcat applications">
+        <list url="${tomcat7.manager.url}" 
+        	username="${tomcat7.manager.username}" password="${tomcat7.manager.password}" />
+    </target>
+    -->
+
+	
+	<target name="manager_deploy" description="">
+		
+		
+    <antcall target="deploy_upload3"  />
+		<!--
+		<antcall target="deploy_upload2" />
+	  <antcall target="deploy_upload1" />
+		-->
+		
+		<!--
+   <antcall target="list" />
+	
+		<antcall target="stop"/>
+		
+		<echo message="tomcat service stopping..." />
+		<sleep seconds="5"/>
+	
+		<echo message="tomcat service starting..." />
+		<antcall target="start"/>
+		 -->
+    </target>
+</project>

@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<project name="baanweb" default="make_war">
+	<property name="encoding" value="UTF-8" description="文件编码"/>
+	<property name="jdk.version" value="1.7"/>
+	<property name="source.version" value="1.7"/>
+	
+	<property name="svn.down.dir"			value="./svndown" description="SVN下载的临时目录"/>
+	<!--
+	<property name="svn.down.envfile.live"	value="${svn.down.dir}/env_live" description="正式版的配置文件"/>
+	<property name="svn.down.envfile.dev"	value="${svn.down.dir}/env_dev" description="开发版的配置文件"/>
+	-->
+	<property name="svn.down.src.dir"		value="${svn.down.dir}/src" description="src目录"/>
+	<property name="svn.down.sources.dir"	value="${svn.down.dir}/resource" description="sources目录"/>
+	<property name="svn.down.web.dir"		value="${svn.down.dir}/WebContent" description="web目录"/>
+	<property name="svn.down.web.lib.dir"	value="${svn.down.dir}/WebContent/WEB-INF/lib" description="web目录"/>
+	<property name="svn.down.web.class.dir"	value="${svn.down.dir}/WebContent/WEB-INF/classes" description="web目录"/>
+	
+	<property name="bulid.dir"				value="./build" description="输出目录"/>
+	<property name="bulid.web.dir"			value="${bulid.dir}/WEB-INF" description="web配置输出目录"/>
+	<property name="bulid.web.class.dir"	value="${bulid.web.dir}/classes" description="web类输出目录"/>
+	<property name="bulid.web.lib.dir"		value="${bulid.web.dir}/lib" description="web引用jar输出目录"/>
+	
+	<property name="war.output.file"		value="./war/ROOT.war" description="WAR输出目录"/>
+	
+	<property name="tomcat7.dir"			value="D:/apache-tomcat-7.0.39_x64" description="tomcat的依赖包"/>
+	<property name="tomcat7.lib.dir"		value="${tomcat7.dir}/lib" description="tomcat的依赖包"/>
+	<property name="tomcat7.bin.dir"		value="${tomcat7.dir}/bin" description=""/>
+	<property name="tomcat7.webapps.dir"	value="${tomcat7.dir}/webapps" description=""/>
+	
+	<property name="svnant.lib.dir"			value="D:/svnant-1.2.1/lib" description="svnant的核心包"/>
+	
+	<property name="svn.account" value="admin" />
+	<property name="svn.password" value="123456" />
+	<property name="svn.version" value="1" />
+	<property name="svn.url" value="http://192.168.0.1/svn/common/trunk" />
+	
+	<property name="web_context" value="${ant.project.name}"/>
+	
+	<target name="clean" description="清理输出目录">
+		<delete dir="${bulid.dir}"/>
+		<mkdir dir="${bulid.dir}" />
+		<mkdir dir="${bulid.web.dir}" />
+		<mkdir dir="${bulid.web.lib.dir}" />
+		<mkdir dir="${bulid.web.class.dir}" />
+		
+		<delete dir="${svn.down.dir}"/>
+		<mkdir dir="${svn.down.dir}" />
+		
+	</target>
+	
+	<target name="cleanWar" description="清理war文件">
+		<delete file="${war.output.file}"/>
+	</target>
+
+	<fileset id="default.libs" dir="${svn.down.web.lib.dir}">
+		<include name="*.jar" />
+		<exclude name="**/*javadoc.jar" />
+		<exclude name="**/*sources.jar" />
+	</fileset>
+	
+	<fileset id="tomcat.libs" dir="${tomcat7.lib.dir}">
+	</fileset>
+	
+	<path id="svnant.libs">
+		<fileset dir="${svnant.lib.dir}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+		
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.libs" />
+	
+    <target name="checkout" description="从SVN检出源代码">
+    	<echo message="创建打包需要的路径，拷贝源文件到打包路径下..."/>
+        <svn username="${svn.account}" password="${svn.password}" javahl="false">
+            <checkout url="${svn.url}" revision="HEAD" destPath="${svn.down.dir}" />
+        </svn>
+    </target>
+
+	<target name="complie">
+		
+		<antcall target="clean"></antcall>
+		<antcall target="cleanWar"></antcall>
+		<antcall target="checkout"></antcall> 
+		
+    <!-- 复制源代码目录中所有的非java文件 -->
+		<!--
+		<copy todir="${svn.down.src.dir}">
+      <fileset dir="${svn.down.src.zxb}" />
+    </copy>
+		-->
+		
+		<javac target="${jdk.version}" srcdir="${svn.down.src.dir}" encoding="${encoding}" destdir="${bulid.web.class.dir}" includeantruntime="false">
+			<classpath>
+				<!-- 在refid中不能用","来隔离多个文件集 -->
+				<fileset refid="default.libs"/>
+				<fileset refid="tomcat.libs"/>
+			</classpath>
+		</javac>
+		<copy todir="${bulid.web.class.dir}">
+			<!-- 复制源代码目录中所有的非java文件 -->
+			<fileset dir="${svn.down.src.dir}" excludes="**/*.java"/>
+		</copy>
+		
+		<!-- 拷贝Sources目录 -->
+		<copy todir="${bulid.web.class.dir}">
+			<!-- 复制源代码目录中所有的非java文件 -->
+			<fileset dir="${svn.down.sources.dir}" excludes="**/*.java"/>
+		</copy>
+		
+		<!-- 拷贝jar -->
+		<copy todir="${bulid.web.lib.dir}" flatten="true">
+			<fileset refid="default.libs"/>
+		</copy>
+		
+		<!-- 拷贝Web目录 -->
+		<copy todir="${bulid.dir}">
+			<fileset dir="${svn.down.web.dir}"/>
+		</copy>
+		
+		
+		
+	</target>
+
+	<target name="make_war" depends="complie">
+		<!-- war为打包web项目压缩文件， destfile为目标输出文件，basedir为需要打包的web项目目录  -->
+		<war destfile="${war.output.file}" basedir="${bulid.dir}" />
+		
+		<antcall target="clean"></antcall>
+	</target>		
+
+
+
+</project>
