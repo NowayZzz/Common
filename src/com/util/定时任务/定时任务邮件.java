@@ -19,10 +19,8 @@ import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.util.类.cotroller基类;
-
 @Controller
-public class 定时任务邮件 extends cotroller基类 {
+public class 定时任务邮件  {
 	
 	@Autowired
 	private JavaMailSender javaMailSender;

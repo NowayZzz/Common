@@ -158,7 +158,7 @@ public class MemcachedUtil {
 			
 		}
 		
-		Integer[] weights   = new Integer[C.MEMCACHED_WEIGHTS.length];
+		Integer[] weights   = new Integer[10];
 		for (int i = 0; i < weights.length; i++) {
 			weights[i] = Integer.parseInt(C.MEMCACHED_WEIGHTS[i]);
 		}

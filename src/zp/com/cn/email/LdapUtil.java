@@ -45,9 +45,6 @@ public class LdapUtil {
 			ctx = new InitialLdapContext(env, null);
 			SearchControls searchCtls = new SearchControls();
 			searchCtls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-			// specify the LDAP search filter
-			// String searchFilter =
-			// "(&(objectCategory=person)(objectClass=user)(name=180025))";
 			String searchFilter = "(&(objectCategory=person)(objectClass=user)(name="
 					+ uid + "))";
 
