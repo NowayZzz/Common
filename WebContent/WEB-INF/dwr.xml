@@ -4,7 +4,7 @@
 <dwr>
 	<allow>
 		<create creator="new" javascript="nowayMessage">
-			<param name="class" value="com.noway.dwr.NowayDwr" />
+			<param name="class" value="com.rms.dwr.NowayDwr" />
 		</create>
 	</allow>
 </dwr>

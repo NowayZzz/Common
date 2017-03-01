@@ -52,39 +52,30 @@
 <li>Oracle触发器</li>
 <li>
 
-	CREATE OR REPLACE TRIGGER trigger_ttiitm240610
-	BEFORE UPDATE ON ttiitm240400
+	CREATE OR REPLACE TRIGGER trigger_user
+	BEFORE UPDATE ON user
 	FOR EACH ROW
 	begin
-	  if updating and :NEW.T$OSTA = 3 and :OLD.T$COMP = 610 then
-	     insert into ttiitm240610@subinfors
-	     values (:OLD.T$TYPE, :OLD.T$DBNO, :OLD.T$YSFG);
-	     insert into ttiitm241610@subinfors select t3.t$dbno,t3.t$seqn,t3.t$item from ttiitm241400 t3 where t3.t$dbno=:OLD.T$DBNO;
+	  if updating and :NEW.username = 'admin' and :OLD.username = 'root' then
+	     insert into user_log values (:OLD.username, :OLD.password, :NEW.username);
 	  end if;
 	end;
 	
-	
-	create or replace trigger TRI_TTIITM240_ZRDW_1
-	before insert or update on TTIITM240400 for each row
+	create or replace trigger TRI_USER
+	before insert or update on USER for each row
 	 declare
-	  user_var     varchar2(200);	  ip_add_var   varchar2(200);	  terminal_var varchar2(200);	  host_var     varchar2(200);	  session_id   number;
+	  user_var  varchar2(200); ip_add_var varchar2(200); terminal_var varchar2(200); host_var varchar2(200); session_id number;
 	begin
-	  select sys_context('USERENV', 'OS_USER'),	         sys_context('USERENV', 'IP_ADDRESS'),	         sys_context('USERENV', 'TERMINAL'),
-	         sys_context('USERENV', 'HOST'),	         sys_context('USERENV', 'SESSIONID')
-	    into user_var, ip_add_var, terminal_var, host_var, session_id	    from dual;
+	  select sys_context('USERENV', 'OS_USER'),	sys_context('USERENV', 'IP_ADDRESS'), sys_context('USERENV', 'TERMINAL'),
+	         sys_context('USERENV', 'HOST'),  sys_context('USERENV', 'SESSIONID')
+	    into user_var, ip_add_var, terminal_var, host_var, session_id from dual;
 	
-	  if updating and trim(:NEW.T$ZRDW) = '1' then	   insert into  GCP_TIITM240_ZRDW@ERPCX
-	   values
-	    (	      :old.t$dbno,	      sysdate,	      'update',	       user_var,	       ip_add_var,	       terminal_var,
-	       host_var,	       session_id,	       ora_login_user,	       :OLD.T$ZRDW
-	    );
+	  if updating and trim(:NEW.username) = 'admin' then insert into user_log
+	   values (	 :old.username, sysdate, 'update', user_var,	ip_add_var,	terminal_var,host_var, session_id, ora_login_user );
 	  end if;
 	
-	  if inserting and trim(:NEW.T$ZRDW) = '1' then	   insert into  GCP_TIITM240_ZRDW@ERPCX
-	   values
-	    (	      :new.t$dbno,	      sysdate,	      'insert',	       user_var,	       ip_add_var,	       terminal_var,
-	       host_var,	       session_id,	       ora_login_user,	        :OLD.T$ZRDW
-	    );
+	  if inserting and trim(:NEW.T$ZRDW) = '1' then	   insert into  user_log2
+	   values  ( :new.t$dbno, sysdate, 'insert', user_var, ip_add_var, terminal_var, host_var, session_id,  ora_login_user);
 	  end if;
 	end;
 </li>
